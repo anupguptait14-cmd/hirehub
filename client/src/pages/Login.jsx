@@ -161,10 +161,10 @@ export const Login = () => {
               type="email"
               placeholder={
                 selectedRole === 'candidate'
-                  ? 'candidate@example.com'
+                  ? 'e.g. aarav.patel@example.com'
                   : selectedRole === 'recruiter'
-                  ? 'employer@company.com'
-                  : 'admin@hirehub.com'
+                  ? 'e.g. priya.sharma@techcorp.in'
+                  : 'e.g. admin@hirehub.com'
               }
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -176,7 +176,7 @@ export const Login = () => {
               <Input
                 label="Password"
                 type="password"
-                placeholder="••••••••"
+                placeholder="Enter your account password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 icon={Lock}
