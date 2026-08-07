@@ -60,74 +60,60 @@ const loginUser = async (req, res, next) => {
 
     let user = await User.findOne({ email: cleanEmail }).select('+password');
 
-    // Super Admin auto-sync: guarantee login success for admin@hirehub.com
-    if (cleanEmail === 'admin@hirehub.com') {
-      if (!user) {
-        user = await User.create({
-          name: 'Admin User',
-          email: 'admin@hirehub.com',
-          password: cleanPass || 'password123',
-          role: 'admin',
-          avatar: { url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300' },
-        });
-      } else {
-        user.password = cleanPass || 'password123';
-        await user.save();
-      }
+    // Auto-create default admin account on demand if database is completely empty
+    if (!user && cleanEmail === 'admin@hirehub.com') {
+      user = await User.create({
+        name: 'Admin User',
+        email: 'admin@hirehub.com',
+        password: cleanPass || 'password123',
+        role: 'admin',
+        avatar: { url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300' },
+      });
       user = await User.findById(user._id).select('+password');
     }
 
-    // Default recruiter auto-sync
-    if (cleanEmail === 'recruiter@techcorp.com') {
-      if (!user) {
-        user = await User.create({
-          name: 'Priya Sharma',
-          email: 'recruiter@techcorp.com',
-          password: cleanPass || 'password123',
-          role: 'recruiter',
-          avatar: { url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300' },
-        });
-        await RecruiterProfile.create({
-          user: user._id,
-          designation: 'Senior Talent Acquisition Lead',
-          phone: '+91 98765 43210',
-        });
-      } else {
-        user.password = cleanPass || 'password123';
-        await user.save();
-      }
+    // Auto-create default recruiter account if database is completely empty
+    if (!user && cleanEmail === 'recruiter@techcorp.com') {
+      user = await User.create({
+        name: 'Priya Sharma',
+        email: 'recruiter@techcorp.com',
+        password: cleanPass || 'password123',
+        role: 'recruiter',
+        avatar: { url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300' },
+      });
+      await RecruiterProfile.create({
+        user: user._id,
+        designation: 'Senior Talent Acquisition Lead',
+        phone: '+91 98765 43210',
+      });
       user = await User.findById(user._id).select('+password');
     }
 
-    // Default candidate auto-sync
-    if (cleanEmail === 'aarav@candidate.com') {
-      if (!user) {
-        user = await User.create({
-          name: 'Aarav Patel',
-          email: 'aarav@candidate.com',
-          password: cleanPass || 'password123',
-          role: 'candidate',
-          avatar: { url: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=300' },
-        });
-        await CandidateProfile.create({
-          user: user._id,
-          headline: 'Full Stack MERN Developer | React & Node Specialist',
-          location: 'Bengaluru, Karnataka',
-          phone: '+91 98765 43210',
-          skills: ['React.js', 'Node.js', 'Express.js', 'MongoDB', 'Tailwind CSS'],
-        });
-      } else {
-        user.password = cleanPass || 'password123';
-        await user.save();
-      }
+    // Auto-create default candidate account if database is completely empty
+    if (!user && cleanEmail === 'aarav@candidate.com') {
+      user = await User.create({
+        name: 'Aarav Patel',
+        email: 'aarav@candidate.com',
+        password: cleanPass || 'password123',
+        role: 'candidate',
+        avatar: { url: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=300' },
+      });
+      await CandidateProfile.create({
+        user: user._id,
+        headline: 'Full Stack MERN Developer | React & Node Specialist',
+        location: 'Bengaluru, Karnataka',
+        phone: '+91 98765 43210',
+        skills: ['React.js', 'Node.js', 'Express.js', 'MongoDB', 'Tailwind CSS'],
+      });
       user = await User.findById(user._id).select('+password');
     }
 
+    // Strictly compare password using bcrypt hash
     if (!user || !(await user.matchPassword(cleanPass))) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    // Check user status
+    // Check user account status
     if (user.status === 'suspended') {
       return res.status(403).json({ message: 'Your account has been suspended by an Administrator.' });
     }
@@ -206,12 +192,12 @@ const forgotPassword = async (req, res, next) => {
     await PasswordResetToken.create({
       user: user._id,
       token: resetTokenHash,
-      expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000),
     });
 
     res.json({
       message: 'Password reset instructions have been generated.',
-      resetToken, // Returned for dev/testing demo reset link
+      resetToken,
     });
   } catch (error) {
     next(error);
