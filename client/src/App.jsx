@@ -73,7 +73,7 @@ export function App() {
                   {/* Protected Candidate Routes */}
                   <Route element={<RoleRoute allowedRoles={['candidate']} />}>
                     <Route path="/candidate/dashboard" element={<CandidateDashboard />} />
-                    <Route path="/candidate/profile" element={<CandidateProfile />} />
+                    <Route path="/candidate/profile" element={<ProfileSettings />} />
                     <Route path="/candidate/applications" element={<CandidateApplications />} />
                     <Route path="/candidate/saved-jobs" element={<CandidateSavedJobs />} />
                   </Route>

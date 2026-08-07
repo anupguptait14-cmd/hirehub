@@ -66,6 +66,7 @@ export const AuthProvider = ({ children }) => {
       value={{
         user,
         loading,
+        isAuthenticated: !!user,
         role: user?.role || null,
         login,
         register,
