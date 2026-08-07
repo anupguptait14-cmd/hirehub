@@ -11,7 +11,7 @@ export const Login = () => {
   const roleParam = searchParams.get('role');
   const initialRole = ['recruiter', 'admin'].includes(roleParam) ? roleParam : 'candidate';
 
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const { addToast } = useNotification();
   const navigate = useNavigate();
 
@@ -19,6 +19,15 @@ export const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Auto redirect if user is already authenticated
+  React.useEffect(() => {
+    if (user) {
+      if (user.role === 'admin') navigate('/admin/dashboard', { replace: true });
+      else if (user.role === 'recruiter') navigate('/recruiter/dashboard', { replace: true });
+      else navigate('/candidate/dashboard', { replace: true });
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

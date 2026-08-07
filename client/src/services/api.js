@@ -4,7 +4,6 @@ const getBaseURL = () => {
   let envUrl = import.meta.env.VITE_API_URL || '/api';
   envUrl = envUrl.trim().replace(/\/+$/, '');
   
-  // If envUrl is a full URL like http://localhost:5000 and missing /api, append /api
   if (envUrl.startsWith('http') && !envUrl.endsWith('/api')) {
     envUrl = `${envUrl}/api`;
   }
@@ -17,6 +16,19 @@ const API = axios.create({
   withCredentials: true,
 });
 
+// Request Interceptor: Always attach Bearer token if present in localStorage
+API.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Response Interceptor: Handle errors cleanly
 API.interceptors.response.use(
   (response) => response,
   (error) => {

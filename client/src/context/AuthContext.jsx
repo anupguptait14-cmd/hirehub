@@ -7,46 +7,58 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
   const checkAuth = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       const data = await authService.getMe();
       setUser(data);
     } catch (err) {
+      console.error('Auth verification failed:', err);
+      // Remove invalid token
+      localStorage.removeItem('token');
       setUser(null);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
   const login = async (credentials) => {
     const data = await authService.login(credentials);
+    if (data?.token) {
+      localStorage.setItem('token', data.token);
+    }
     setUser(data);
-    await checkAuth(); // Load full user details & profile
     return data;
   };
 
   const register = async (userData) => {
     const data = await authService.register(userData);
+    if (data?.token) {
+      localStorage.setItem('token', data.token);
+    }
     setUser(data);
-    await checkAuth();
     return data;
   };
 
   const logout = async () => {
-    try {
-      await authService.logout();
-    } finally {
-      setUser(null);
-    }
+    await authService.logout();
+    localStorage.removeItem('token');
+    setUser(null);
   };
 
-  const updateUser = (newUserData) => {
-    setUser((prev) => ({ ...prev, ...newUserData }));
+  const updateUser = (updatedFields) => {
+    setUser((prev) => (prev ? { ...prev, ...updatedFields } : prev));
   };
 
   return (
@@ -54,13 +66,12 @@ export const AuthProvider = ({ children }) => {
       value={{
         user,
         loading,
+        role: user?.role || null,
         login,
         register,
         logout,
-        checkAuth,
         updateUser,
-        isAuthenticated: !!user,
-        role: user ? user.role : null,
+        checkAuth,
       }}
     >
       {children}
@@ -68,4 +79,10 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
