@@ -83,6 +83,7 @@ export const CandidateProfile = () => {
         education,
       });
       addToast('Candidate profile saved successfully!', 'success');
+      await fetchProfile();
     } catch (err) {
       addToast(err.message, 'error');
     } finally {

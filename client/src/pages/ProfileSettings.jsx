@@ -7,7 +7,6 @@ import { recruiterService } from '../services/recruiterService';
 import { Sidebar } from '../components/layout/Sidebar';
 import { Input } from '../components/common/Input';
 import { Button } from '../components/common/Button';
-import { Badge } from '../components/common/Badge';
 import {
   User,
   Mail,
@@ -37,7 +36,6 @@ export const ProfileSettings = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [avatarPreview, setAvatarPreview] = useState('');
-  const [avatarFile, setAvatarFile] = useState(null);
   const [updatingAccount, setUpdatingAccount] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
@@ -108,7 +106,7 @@ export const ProfileSettings = () => {
       setUpdatingAccount(true);
       const updated = await authService.updateProfile({ name, email });
       updateUser(updated);
-      addToast('Profile information updated successfully!', 'success');
+      addToast('Profile name and email updated successfully!', 'success');
       await checkAuth();
     } catch (err) {
       addToast(err.message, 'error');
@@ -122,7 +120,6 @@ export const ProfileSettings = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    setAvatarFile(file);
     setAvatarPreview(URL.createObjectURL(file));
 
     try {
@@ -168,7 +165,9 @@ export const ProfileSettings = () => {
     try {
       setSavingRecruiter(true);
       await recruiterService.updateProfile({ designation, phone: recruiterPhone });
-      addToast('Recruiter profile updated successfully!', 'success');
+      addToast('Recruiter profile details saved successfully!', 'success');
+      await checkAuth();
+      await fetchRoleDetails();
     } catch (err) {
       addToast(err.message, 'error');
     } finally {
@@ -192,6 +191,8 @@ export const ProfileSettings = () => {
         skills,
       });
       addToast('Candidate details saved successfully!', 'success');
+      await checkAuth();
+      await fetchRoleDetails();
     } catch (err) {
       addToast(err.message, 'error');
     } finally {
@@ -209,6 +210,8 @@ export const ProfileSettings = () => {
       const res = await candidateService.uploadResume(formData);
       setResumeInfo(res.resume);
       addToast('Resume uploaded successfully!', 'success');
+      await checkAuth();
+      await fetchRoleDetails();
     } catch (err) {
       addToast(err.message, 'error');
     }
