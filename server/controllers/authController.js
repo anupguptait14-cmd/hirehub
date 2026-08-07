@@ -1,7 +1,9 @@
 const User = require('../models/User');
 const CandidateProfile = require('../models/CandidateProfile');
 const RecruiterProfile = require('../models/RecruiterProfile');
+const PasswordResetToken = require('../models/PasswordResetToken');
 const generateToken = require('../utils/generateToken');
+const crypto = require('crypto');
 
 // @desc    Register a new user
 // @route   POST /api/auth/register
@@ -183,9 +185,79 @@ const getMe = async (req, res, next) => {
   }
 };
 
+// @desc    Forgot Password - Send reset token
+// @route   POST /api/auth/forgot-password
+// @access  Public
+const forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    const cleanEmail = email ? email.trim().toLowerCase() : '';
+
+    const user = await User.findOne({ email: cleanEmail });
+    if (!user) {
+      return res.status(404).json({ message: 'No user registered with this email address' });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenHash = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+    await PasswordResetToken.deleteMany({ user: user._id });
+
+    await PasswordResetToken.create({
+      user: user._id,
+      token: resetTokenHash,
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
+    });
+
+    res.json({
+      message: 'Password reset instructions have been generated.',
+      resetToken, // Returned for dev/testing demo reset link
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Reset Password with token
+// @route   POST /api/auth/reset-password/:token
+// @access  Public
+const resetPassword = async (req, res, next) => {
+  try {
+    const { password } = req.body;
+    const { token } = req.params;
+
+    const resetTokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+    const resetDoc = await PasswordResetToken.findOne({
+      token: resetTokenHash,
+      expiresAt: { $gt: new Date() },
+    });
+
+    if (!resetDoc) {
+      return res.status(400).json({ message: 'Invalid or expired password reset token' });
+    }
+
+    const user = await User.findById(resetDoc.user);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.password = password.trim();
+    await user.save();
+
+    await PasswordResetToken.deleteMany({ user: user._id });
+
+    res.json({ message: 'Password reset successful. You may now log in with your new password.' });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
   logoutUser,
   getMe,
+  forgotPassword,
+  resetPassword,
 };
