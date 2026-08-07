@@ -8,10 +8,16 @@ const API = axios.create({
 API.interceptors.response.use(
   (response) => response,
   (error) => {
-    const message =
-      error.response && error.response.data.message
-        ? error.response.data.message
-        : error.message;
+    let message = 'An unexpected error occurred';
+
+    if (error.response && error.response.data && error.response.data.message) {
+      message = error.response.data.message;
+    } else if (error.message === 'Network Error') {
+      message = 'Network Error: Cannot connect to HireHub backend API server. Please ensure the backend server is running on port 5000 and MongoDB is active.';
+    } else if (error.message) {
+      message = error.message;
+    }
+
     return Promise.reject(new Error(message));
   }
 );
