@@ -1,8 +1,18 @@
+export const getImageUrl = (url) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+    return url;
+  }
+  const baseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:5000').trim().replace(/\/+$/, '');
+  const domain = baseUrl.replace(/\/api$/, '');
+  const cleanPath = url.startsWith('/') ? url : `/${url}`;
+  return `${domain}${cleanPath}`;
+};
+
 export const formatCurrency = (amount, currency = 'INR') => {
   if (!amount) return 'N/A';
 
   if (currency === 'INR') {
-    // Format in Indian Lakhs (LPA) for salaries
     if (amount >= 100000) {
       const lakhs = (amount / 100000).toLocaleString('en-IN', { maximumFractionDigits: 2 });
       return `₹${lakhs} LPA`;

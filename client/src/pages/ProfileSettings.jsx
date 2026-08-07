@@ -7,6 +7,7 @@ import { recruiterService } from '../services/recruiterService';
 import { Sidebar } from '../components/layout/Sidebar';
 import { Input } from '../components/common/Input';
 import { Button } from '../components/common/Button';
+import { getImageUrl } from '../utils/formatters';
 import {
   User,
   Mail,
@@ -27,7 +28,7 @@ import {
 } from 'lucide-react';
 
 export const ProfileSettings = () => {
-  const { user, updateUser, role, checkAuth } = useAuth();
+  const { user, updateUser, role } = useAuth();
   const { addToast } = useNotification();
 
   const [activeTab, setActiveTab] = useState('account'); // 'account' | 'security' | 'role_profile'
@@ -106,8 +107,9 @@ export const ProfileSettings = () => {
       setUpdatingAccount(true);
       const updated = await authService.updateProfile({ name, email });
       updateUser(updated);
+      setName(updated.name);
+      setEmail(updated.email);
       addToast('Profile name and email updated successfully!', 'success');
-      await checkAuth();
     } catch (err) {
       addToast(err.message, 'error');
     } finally {
@@ -128,8 +130,10 @@ export const ProfileSettings = () => {
       formData.append('avatar', file);
       const res = await authService.uploadAvatar(formData);
       updateUser({ avatar: res.avatar });
+      if (res.avatar?.url) {
+        setAvatarPreview(res.avatar.url);
+      }
       addToast('Profile picture updated successfully!', 'success');
-      await checkAuth();
     } catch (err) {
       addToast(err.message, 'error');
     } finally {
@@ -164,10 +168,12 @@ export const ProfileSettings = () => {
     e.preventDefault();
     try {
       setSavingRecruiter(true);
-      await recruiterService.updateProfile({ designation, phone: recruiterPhone });
+      const updated = await recruiterService.updateProfile({ designation, phone: recruiterPhone });
       addToast('Recruiter profile details saved successfully!', 'success');
-      await checkAuth();
-      await fetchRoleDetails();
+      if (updated) {
+        setDesignation(updated.designation || '');
+        setRecruiterPhone(updated.phone || '');
+      }
     } catch (err) {
       addToast(err.message, 'error');
     } finally {
@@ -180,7 +186,7 @@ export const ProfileSettings = () => {
     e.preventDefault();
     try {
       setSavingCandidate(true);
-      await candidateService.updateProfile({
+      const updated = await candidateService.updateProfile({
         headline,
         bio,
         location,
@@ -191,8 +197,16 @@ export const ProfileSettings = () => {
         skills,
       });
       addToast('Candidate details saved successfully!', 'success');
-      await checkAuth();
-      await fetchRoleDetails();
+      if (updated) {
+        setHeadline(updated.headline || '');
+        setBio(updated.bio || '');
+        setLocation(updated.location || '');
+        setPhone(updated.phone || '');
+        setWebsite(updated.website || '');
+        setGithub(updated.github || '');
+        setLinkedin(updated.linkedin || '');
+        setSkills(updated.skills || []);
+      }
     } catch (err) {
       addToast(err.message, 'error');
     } finally {
@@ -210,8 +224,6 @@ export const ProfileSettings = () => {
       const res = await candidateService.uploadResume(formData);
       setResumeInfo(res.resume);
       addToast('Resume uploaded successfully!', 'success');
-      await checkAuth();
-      await fetchRoleDetails();
     } catch (err) {
       addToast(err.message, 'error');
     }
@@ -226,6 +238,8 @@ export const ProfileSettings = () => {
 
   const removeSkill = (s) => setSkills(skills.filter((item) => item !== s));
 
+  const displayAvatarSrc = getImageUrl(avatarPreview || user?.avatar?.url) || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300';
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="flex flex-col md:flex-row gap-8">
@@ -237,9 +251,9 @@ export const ProfileSettings = () => {
             <div className="flex items-center gap-5">
               <div className="relative group">
                 <img
-                  src={avatarPreview || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300'}
-                  alt={name}
-                  className="w-20 h-20 rounded-full object-cover border-2 border-brand-500 shadow-md"
+                  src={displayAvatarSrc}
+                  alt={user?.name || 'Profile'}
+                  className="w-20 h-20 rounded-full object-cover border-2 border-brand-500 shadow-md bg-dark-card"
                 />
                 <label className="absolute bottom-0 right-0 p-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-full cursor-pointer shadow-lg transition-transform group-hover:scale-110">
                   <Camera className="w-4 h-4" />
@@ -443,7 +457,7 @@ export const ProfileSettings = () => {
                         </div>
                         <div className="flex items-center gap-3">
                           <a
-                            href={resumeInfo.url}
+                            href={getImageUrl(resumeInfo.url)}
                             target="_blank"
                             rel="noreferrer"
                             className="text-xs text-brand-600 dark:text-brand-400 font-semibold hover:underline"

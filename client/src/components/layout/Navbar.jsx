@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { notificationService } from '../../services/notificationService';
+import { getImageUrl } from '../../utils/formatters';
 import {
   Briefcase,
   Sun,
@@ -198,7 +199,7 @@ export const Navbar = () => {
                     className="flex items-center gap-2.5 p-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-dark-hover transition-colors"
                   >
                     <img
-                      src={user.avatar?.url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300'}
+                      src={getImageUrl(user.avatar?.url) || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300'}
                       alt={user.name}
                       className="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-dark-border"
                     />
