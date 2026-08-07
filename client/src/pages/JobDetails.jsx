@@ -143,18 +143,18 @@ export const JobDetails = () => {
       </button>
 
       {/* Main Job Banner Header */}
-      <div className="glass-card rounded-3xl p-6 sm:p-8 border flex flex-col md:flex-row justify-between gap-6">
-        <div className="flex gap-4 items-start">
+      <div className="glass-card rounded-3xl p-5 sm:p-8 border flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div className="flex flex-col sm:flex-row gap-4 items-start w-full">
           <img
             src={company.logo?.url || 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?auto=format&fit=crop&q=80&w=200'}
             alt={company.name}
-            className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border p-1 bg-white"
+            className="w-14 h-14 sm:w-20 sm:h-20 rounded-2xl object-cover border p-1 bg-white shrink-0"
           />
-          <div className="space-y-2">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-gray-100">
+          <div className="space-y-2 flex-1">
+            <h1 className="text-xl sm:text-3xl font-extrabold text-gray-900 dark:text-gray-100">
               {job.title}
             </h1>
-            <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
+            <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-gray-600 dark:text-gray-300">
               <Link to={`/companies/${company._id}`} className="font-semibold text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1">
                 <Building2 className="w-4 h-4" /> {company.name || 'Tech Company'}
               </Link>
@@ -162,7 +162,7 @@ export const JobDetails = () => {
                 <MapPin className="w-4 h-4 text-gray-400" /> {job.location}
               </span>
             </div>
-            <div className="flex flex-wrap gap-2 pt-1">
+            <div className="flex flex-wrap gap-1.5 pt-1">
               <Badge variant="primary">{job.workMode}</Badge>
               <Badge variant="default">{job.jobType}</Badge>
               <Badge variant="purple">{job.experienceLevel}</Badge>
@@ -171,9 +171,9 @@ export const JobDetails = () => {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row md:flex-col justify-center gap-3 shrink-0">
+        <div className="w-full md:w-auto flex flex-col sm:flex-row md:flex-col justify-center gap-3 shrink-0">
           {hasApplied ? (
-            <div className="px-5 py-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 text-emerald-700 dark:text-emerald-300 flex items-center justify-center gap-2 text-sm font-semibold">
+            <div className="w-full px-5 py-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 text-emerald-700 dark:text-emerald-300 flex items-center justify-center gap-2 text-sm font-semibold">
               <CheckCircle2 className="w-5 h-5" /> Applied
             </div>
           ) : (

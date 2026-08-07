@@ -19,6 +19,7 @@ import {
   PlusSquare,
   ShieldCheck,
   Users,
+  Settings,
 } from 'lucide-react';
 
 export const Navbar = () => {
@@ -75,6 +76,7 @@ export const Navbar = () => {
 
   const handleLogout = async () => {
     await logout();
+    setMobileMenuOpen(false);
     navigate('/login');
   };
 
@@ -96,7 +98,7 @@ export const Navbar = () => {
             <span className="text-xl font-bold text-gradient tracking-tight">HireHub</span>
           </Link>
 
-          {/* Navigation Links */}
+          {/* Desktop Navigation Links */}
           <nav className="hidden md:flex items-center gap-6">
             <Link
               to="/jobs"
@@ -125,7 +127,7 @@ export const Navbar = () => {
             )}
           </nav>
 
-          {/* Right Action Icons */}
+          {/* Right Action Icons (Desktop) */}
           <div className="hidden md:flex items-center gap-4">
             {/* Theme Toggle */}
             <button
@@ -328,14 +330,26 @@ export const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile Menu Toggle */}
+          {/* Mobile Menu & Theme Toggle */}
           <div className="flex md:hidden items-center gap-2">
             <button
               onClick={toggleTheme}
               className="p-2 rounded-lg text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+              title="Toggle theme"
             >
               {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
+
+            {user && (
+              <Link to="/profile-settings" className="p-1">
+                <img
+                  src={user.avatar?.url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300'}
+                  alt={user.name}
+                  className="w-7 h-7 rounded-full object-cover border border-brand-500"
+                />
+              </Link>
+            )}
+
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-hover"
@@ -346,55 +360,99 @@ export const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Drawer (Responsive Touch Drawer) */}
       {mobileMenuOpen && (
-        <div className="md:hidden glass-panel border-b px-4 pt-2 pb-6 space-y-3">
+        <div className="md:hidden glass-panel border-b px-4 pt-3 pb-6 space-y-3 animate-fade-in">
           <Link
             to="/jobs"
             onClick={() => setMobileMenuOpen(false)}
-            className="block py-2 text-base font-medium text-gray-700 dark:text-gray-200"
+            className="flex items-center gap-2.5 py-2 text-base font-medium text-gray-700 dark:text-gray-200"
           >
-            Find Jobs
+            <Briefcase className="w-4 h-4 text-brand-500" /> Find Jobs
           </Link>
           <Link
             to="/companies"
             onClick={() => setMobileMenuOpen(false)}
-            className="block py-2 text-base font-medium text-gray-700 dark:text-gray-200"
+            className="flex items-center gap-2.5 py-2 text-base font-medium text-gray-700 dark:text-gray-200"
           >
-            Companies
+            <Building2 className="w-4 h-4 text-purple-500" /> Companies Directory
           </Link>
 
           {role === 'admin' && (
             <Link
               to="/admin/dashboard"
               onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-base font-bold text-rose-600 dark:text-rose-400"
+              className="flex items-center gap-2.5 py-2 text-base font-bold text-rose-600 dark:text-rose-400"
             >
-              🛡️ Admin Dashboard
+              <ShieldCheck className="w-4 h-4 text-rose-500" /> Admin Dashboard
             </Link>
           )}
 
           {user ? (
-            <div className="pt-4 border-t border-gray-200 dark:border-dark-border space-y-2">
+            <div className="pt-3 border-t border-gray-200 dark:border-dark-border space-y-2">
+              <div className="px-1 py-1">
+                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{user.name}</p>
+                <p className="text-xs text-gray-500">{user.email}</p>
+              </div>
+
               <Link
                 to={getDashboardLink()}
                 onClick={() => setMobileMenuOpen(false)}
-                className="block py-2 text-base font-medium text-brand-600 dark:text-brand-400"
+                className="flex items-center gap-2.5 py-2 text-sm font-semibold text-brand-600 dark:text-brand-400"
               >
-                Dashboard
+                <Building2 className="w-4 h-4" /> {role?.toUpperCase()} Dashboard
               </Link>
               <Link
                 to="/profile-settings"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block py-2 text-base font-medium text-gray-700 dark:text-gray-200"
+                className="flex items-center gap-2.5 py-2 text-sm font-medium text-gray-700 dark:text-gray-200"
               >
-                Account & Profile Settings
+                <Settings className="w-4 h-4 text-emerald-500" /> Account & Profile Settings
               </Link>
+
+              {role === 'candidate' && (
+                <>
+                  <Link
+                    to="/candidate/applications"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-2.5 py-2 text-sm font-medium text-gray-700 dark:text-gray-200"
+                  >
+                    <FileText className="w-4 h-4 text-indigo-500" /> My Applications
+                  </Link>
+                  <Link
+                    to="/candidate/saved-jobs"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-2.5 py-2 text-sm font-medium text-gray-700 dark:text-gray-200"
+                  >
+                    <Bookmark className="w-4 h-4 text-amber-500" /> Saved Jobs
+                  </Link>
+                </>
+              )}
+
+              {role === 'recruiter' && (
+                <>
+                  <Link
+                    to="/recruiter/post-job"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-2.5 py-2 text-sm font-medium text-gray-700 dark:text-gray-200"
+                  >
+                    <PlusSquare className="w-4 h-4 text-brand-500" /> Post a Job
+                  </Link>
+                  <Link
+                    to="/recruiter/manage-jobs"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-2.5 py-2 text-sm font-medium text-gray-700 dark:text-gray-200"
+                  >
+                    <Briefcase className="w-4 h-4 text-purple-500" /> Manage Posted Jobs
+                  </Link>
+                </>
+              )}
+
               <button
                 onClick={handleLogout}
-                className="w-full text-left py-2 text-base font-medium text-rose-600"
+                className="w-full text-left flex items-center gap-2.5 py-2.5 text-sm font-semibold text-rose-600"
               >
-                Sign Out
+                <LogOut className="w-4 h-4" /> Sign Out
               </button>
             </div>
           ) : (
@@ -402,14 +460,14 @@ export const Navbar = () => {
               <Link
                 to="/login"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full text-center py-2 rounded-lg border border-gray-300 font-medium"
+                className="w-full text-center py-2.5 rounded-xl border border-gray-300 dark:border-dark-border text-sm font-semibold"
               >
                 Log in
               </Link>
               <Link
                 to="/register"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full text-center py-2 rounded-lg bg-gradient-brand text-white font-medium shadow-md"
+                className="w-full text-center py-2.5 rounded-xl bg-gradient-brand text-white text-sm font-semibold shadow-md"
               >
                 Sign up
               </Link>

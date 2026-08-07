@@ -62,19 +62,19 @@ export const Home = () => {
   return (
     <div className="flex flex-col gap-20 pb-20">
       {/* Hero Section */}
-      <section className="relative pt-16 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden bg-gradient-to-b from-brand-50/50 via-transparent to-transparent dark:from-brand-950/20">
-        <div className="max-w-7xl mx-auto flex flex-col items-center text-center gap-8">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-brand-100 dark:bg-brand-900/50 text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-800 animate-fade-in">
+      <section className="relative pt-8 sm:pt-16 pb-12 sm:pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden bg-gradient-to-b from-brand-50/50 via-transparent to-transparent dark:from-brand-950/20">
+        <div className="max-w-7xl mx-auto flex flex-col items-center text-center gap-6 sm:gap-8">
+          <div className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 rounded-full text-[11px] sm:text-xs font-semibold bg-brand-100 dark:bg-brand-900/50 text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-800 animate-fade-in">
             <TrendingUp className="w-3.5 h-3.5" />
             <span>Over 2,500+ Top Companies Hiring Today</span>
           </div>
 
-          <h1 className="text-4xl sm:text-6xl font-extrabold text-gray-900 dark:text-gray-100 tracking-tight max-w-4xl leading-tight">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 dark:text-gray-100 tracking-tight max-w-4xl leading-tight">
             Find Your Dream Career & <span className="text-gradient">Connect with Industry Leaders</span>
           </h1>
 
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl">
-            HireHub connects talented professionals with innovative startups and Fortune 500 enterprises. Explore high-paying remote, hybrid, and on-site opportunities.
+          <p className="text-sm sm:text-lg text-gray-600 dark:text-gray-300 max-w-2xl">
+            HireHub connects talented professionals with innovative startups and enterprise leaders. Explore high-paying remote, hybrid, and on-site opportunities in India.
           </p>
 
           {/* Hero Search Box */}
