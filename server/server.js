@@ -38,7 +38,7 @@ app.use(
 // Rate Limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 300, // Limit each IP to 300 requests per windowMs
+  max: 500, // Limit each IP to 500 requests per windowMs
   message: 'Too many requests from this IP, please try again later.',
 });
 app.use('/api', limiter);
@@ -48,7 +48,6 @@ const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps, curl, or Postman)
       if (!origin) return callback(null, true);
       if (
         origin.includes('localhost') ||
@@ -57,7 +56,7 @@ app.use(
       ) {
         return callback(null, true);
       }
-      return callback(null, true); // Allow origin in dev mode
+      return callback(null, true);
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -74,21 +73,27 @@ app.use(cookieParser());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Health Check API
-app.get('/api/health', (req, res) => {
+app.get(['/api/health', '/health'], (req, res) => {
   res.json({ status: 'ok', service: 'HireHub API Server', timestamp: new Date() });
 });
 
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/candidates', candidateRoutes);
-app.use('/api/recruiters', recruiterRoutes);
-app.use('/api/companies', companyRoutes);
-app.use('/api/jobs', jobRoutes);
-app.use('/api/applications', applicationRoutes);
-app.use('/api/saved-jobs', savedJobRoutes);
-app.use('/api/notifications', notificationRoutes);
-app.use('/api/admin', adminRoutes);
+// Helper function to mount routes cleanly for both /api/path and /path
+const mountRoutes = (prefix) => {
+  app.use(`${prefix}/auth`, authRoutes);
+  app.use(`${prefix}/users`, userRoutes);
+  app.use(`${prefix}/candidates`, candidateRoutes);
+  app.use(`${prefix}/recruiters`, recruiterRoutes);
+  app.use(`${prefix}/companies`, companyRoutes);
+  app.use(`${prefix}/jobs`, jobRoutes);
+  app.use(`${prefix}/applications`, applicationRoutes);
+  app.use(`${prefix}/saved-jobs`, savedJobRoutes);
+  app.use(`${prefix}/notifications`, notificationRoutes);
+  app.use(`${prefix}/admin`, adminRoutes);
+};
+
+// Mount routes for /api/... and direct /...
+mountRoutes('/api');
+mountRoutes('');
 
 // Error Handling
 app.use(notFound);
