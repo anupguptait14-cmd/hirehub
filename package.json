@@ -1,0 +1,20 @@
+{
+  "name": "hirehub",
+  "version": "1.0.0",
+  "description": "HireHub - Modern Recruitment and Job Portal Platform",
+  "main": "server/server.js",
+  "scripts": {
+    "setup": "npm install --prefix server && npm install --prefix client",
+    "server": "npm run dev --prefix server",
+    "client": "npm run dev --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "seed": "npm run seed --prefix server",
+    "build": "npm run build --prefix client"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": ["recruitment", "job-board", "mern", "react", "express", "mongodb", "node"],
+  "author": "Antigravity",
+  "license": "MIT"
+}
